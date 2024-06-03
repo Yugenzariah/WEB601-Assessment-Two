@@ -7,11 +7,11 @@ app.get('/', (req, res) => {
 })
 
 app.get('/login', (req, res) => {
-    res.send('You are now in the login page!')
+    res.sendFile("/pages/login.html", {root: __dirname})
 })
 
 app.get('/signup', (req, res) => {
-    res.send('You are now in the signup page!')
+    res.sendFile("/pages/signup.html", {root: __dirname})
 })
 
 app.listen(port, () => {

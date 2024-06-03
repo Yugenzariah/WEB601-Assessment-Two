@@ -29,14 +29,29 @@
         </ul>
 
         <div class="d-flex" role="search">
-          <a href="/login"><button class="btn btn-outline-success mx-2" type="submit">Login</button></a>
-          <a href="/signup"><button class="btn btn-outline-success mx-2" type="submit">Signup</button></a>
+          <a href="/login"><button class="btn btn-primary mx-2" type="submit">Login</button></a>
+          <a href="/signup"><button class="btn btn-primary mx-2" type="submit">Signup</button></a>
         </div>
       </div>
     </div>
   </nav>
 
   <div class="container">
+
+    <h1 class="my-5">Add Note</h1>
+    <form>
+      <div class="mb-3">
+        <label for="name">Name</label>
+        <input type="text" class="form-control" id="name" aria-describedby="nameHelp">
+        <small id="nameHelp" class="form-text text-muted">Tell us about your note.</small>
+      </div>
+      <div class="mb-3">
+        <label for="desc">Description</label>
+        <textarea type="text" class="form-control" id="desc"></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+
     <h1 class="my-5">Your Notes</h1>
     <div class="mynotes row">
       <div class="card mx-2" style="width: 18rem;">

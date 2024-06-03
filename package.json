@@ -1,0 +1,18 @@
+{
+  "name": "web601-assessment-two",
+  "version": "1.0.0",
+  "description": "A full-stack note taking web application",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Keith",
+  "license": "ISC",
+  "dependencies": {
+    "crypto-js": "^4.2.0",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.4.1"
+  }
+}

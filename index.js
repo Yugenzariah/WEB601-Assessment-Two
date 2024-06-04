@@ -1,5 +1,7 @@
 const express = require('express')
 const mongoose = require('mongoose')
+const User = require('./models/User')
+const Note = require('./models/Note')
 const mongoURI ="mongodb://localhost:27017/"
 const app = express()
 // Use middleware for body parser
@@ -7,6 +9,7 @@ app.use(express.json({extended: true}))
 app.use(express.urlencoded())
 const port = 3000
 
+// Connecting to the Database
 const connectToMongo = async() => {
     try{
         mongoose.set("strictQuery", false)

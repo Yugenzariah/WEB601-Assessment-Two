@@ -39,9 +39,9 @@
   <div class="container">
 
     <h1 class="my-5">Add Note</h1>
-    <form>
+    <div>
       <div class="mb-3">
-        <label for="name">Name</label>
+        <label for="name" class="form-label">Name</label>
         <input type="text" class="form-control" id="name" aria-describedby="nameHelp">
         <small id="nameHelp" class="form-text text-muted">Tell us about your note.</small>
       </div>
@@ -49,8 +49,8 @@
         <label for="desc">Description</label>
         <textarea type="text" class="form-control" id="desc"></textarea>
       </div>
-      <button type="submit" class="btn btn-primary">Submit</button>
-    </form>
+      <button id="submit" type="submit" class="btn btn-primary">Submit</button>
+    </div>
 
     <h1 class="my-5">Your Notes</h1>
     <div class="mynotes row">
@@ -105,16 +105,23 @@
 
       // Use the fetch API to get all notes
       const user = JSON.parse(localStorage.getItem('user'))
-      // TODO: Enable this redirection
+      // TODO: Enable this redirection and fetching
       /* 
           if(!user || !user.token){
         window.location = "/login"
       } 
       */
-      const notes = postData('/getnotes', {token: user.token})
-      notes.then((notes)=>{
-        console.log("Notes")
-        // Populate the notes
+      // const notes = postData('/getnotes', {token: user.token})
+      //notes.then((notes)=>{
+      //  console.log("Notes")
+      //  // Populate the notes
+      //})
+      // Add a click listener for Submit
+      let submit = document.getElementById("submit")
+      submit.addEventListener("click", () =>{
+        let name = document.getElementById("name").value 
+        let desc = document.getElementById("desc").value 
+        console.log("Submitting this data", name, desc)
       })
     </script>
 </body>

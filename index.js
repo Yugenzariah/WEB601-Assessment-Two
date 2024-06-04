@@ -1,12 +1,21 @@
 const express = require('express')
 const mongoose = require('mongoose')
+const mongoURI ="mongodb://localhost:27017/"
 const app = express()
 // Use middleware for body parser
-app.use(express.json())
+app.use(express.json({extended: true}))
 app.use(express.urlencoded())
 const port = 3000
 
-mongoose.connect('mongodb+srv://Keith:WEB601-Assessment-Two@note-taking-web-applica.51gui5q.mongodb.net/');
+const connectToMongo = async() => {
+    try{
+        mongoose.set("strictQuery", false)
+        mongoose.connect('mongodb+srv://Keith:WEB601-Assessment-Two@note-taking-web-applica.51gui5q.mongodb.net/')
+        console.log("Connected to MongoDB Successfully!")
+    } catch (error){
+        console.log(error)
+    }
+}
 
 // Endpoints to serve user interface
 app.get('/', (req, res) => {
@@ -51,3 +60,5 @@ app.post('/deletenote', (req, res) => {
 app.listen(port, () => {
     console.log(`The note taking web app is listening on port http://localhost:${port}`)
 })
+
+module.exports = connectToMongo;

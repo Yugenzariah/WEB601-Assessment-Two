@@ -80,6 +80,8 @@
             console.log(resp)
             if(resp.success){
                 alert("User has been created. You can now login")
+                document.getElementById("email").value = ""
+                document.getElementById("password").value = ""
             }
         })
     </script>

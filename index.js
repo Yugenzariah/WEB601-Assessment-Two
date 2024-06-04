@@ -36,10 +36,10 @@ app.get('/signup', (req, res) => {
 })
 
 // Endpoints for APIs
-app.post('/getnotes', (req, res) => {
+app.post('/getnotes', async(req, res) => {
     // Using json webtoken for user authentication
-    const { userToken } = req.body
-    res.sendFile("/pages/signup.html", { root: __dirname })
+    let notes = await Note.find({email: req.body.email})
+    res.status(200).json({success: true, notes})
 })
 
 app.post('/login', async (req, res) => {
@@ -59,9 +59,10 @@ app.post('/signup', async (req, res) => {
     res.status(200).json({ success: true, user: user })
 })
 
-app.post('/addnote', (req, res) => {
+app.post('/addnote', async(req, res) => {
     const { userToken } = req.body
-    res.sendFile("/pages/signup.html", { root: __dirname })
+    let note = await Note.create(req.body)
+    res.status(200).json({ success: true, note })
 })
 
 app.post('/deletenote', (req, res) => {

@@ -49,7 +49,7 @@
         <label for="desc">Description</label>
         <textarea type="text" class="form-control" id="desc"></textarea>
       </div>
-      <button id="submit" type="submit" class="btn btn-primary">Submit</button>
+      <button id="submit" type="submit" class="btn btn-primary">Add Note</button>
     </div>
 
     <h1 class="my-5">Your Notes</h1>
@@ -121,7 +121,8 @@
       submit.addEventListener("click", () =>{
         let name = document.getElementById("name").value 
         let desc = document.getElementById("desc").value 
-        console.log("Submitting this data", name, desc)
+        let email = JSON.parse(localStorage.getItem("user"))?.email
+        console.log("Submitting this data", name, desc, email)
       })
     </script>
 </body>

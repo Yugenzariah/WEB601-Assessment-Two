@@ -65,16 +65,22 @@
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(data)
+                body: json.stringify(data)
             });
-            return response.JSON();
+            let rdata = await response.json
+            return rdata
         }
 
         let submit = document.getElementById("submit")
-        submit.addEventListener("click", () => {
+        submit.addEventListener("click", async() => {
             let email = document.getElementById("email").value
             let password = document.getElementById("password").value
             console.log("Submitting this data", email, password)
+            let resp = await postData("/signup", {email, password})
+            console.log(resp)
+            if(resp.success){
+                alert("User has been created. You can now login")
+            }
         })
     </script>
 </body>

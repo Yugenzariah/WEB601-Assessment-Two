@@ -1,9 +1,12 @@
 const express = require('express')
+const mongoose = require('mongoose')
 const app = express()
 // Use middleware for body parser
 app.use(express.json())
 app.use(express.urlencoded())
 const port = 3000
+
+mongoose.connect('mongodb+srv://Keith:WEB601-Assessment-Two@note-taking-web-applica.51gui5q.mongodb.net/');
 
 // Endpoints to serve user interface
 app.get('/', (req, res) => {

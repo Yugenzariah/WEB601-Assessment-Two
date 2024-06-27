@@ -3,7 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const User = require('./models/User');
 const Note = require('./models/Note');
-const cookieParser = require('cookie-parser'); // Add cookie-parser
+const cookieParser = require('cookie-parser');
 const app = express();
 
 // Use middleware for body parser and cookies
@@ -55,7 +55,7 @@ const auth = async (req, res, next) => {
         req.user = user;
         next();
     } catch (error) {
-        console.error("Authentication error:", error.message); // Log the error for debugging
+        console.error("Authentication error:", error.message);
         res.status(401).send({ error: 'Please authenticate.' });
     }
 };
@@ -134,6 +134,13 @@ app.post('/addnote', auth, async (req, res) => {
 
 app.post('/deletenote', auth, async (req, res) => {
     try {
+        const noteId = req.body.noteId;
+        const note = await Note.findOneAndDelete({ _id: noteId, email: req.user.email });
+
+        if (!note) {
+            return res.status(404).json({ success: false, message: "Note not found" });
+        }
+
         res.status(200).json({ success: true, message: "Note deleted successfully" });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });

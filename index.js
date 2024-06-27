@@ -123,6 +123,19 @@ app.post('/signup', async (req, res) => {
     }
 });
 
+app.post('/logout', auth, async (req, res) => {
+    try {
+        req.user.tokens = req.user.tokens.filter((token) => {
+            return token.token !== req.token;
+        });
+        await req.user.save();
+        res.clearCookie('auth'); // Clear the auth cookie
+        res.status(200).send({ success: true, message: 'Logged out successfully' });
+    } catch (error) {
+        res.status(500).send({ success: false, message: 'Failed to logout' });
+    }
+});
+
 app.post('/addnote', auth, async (req, res) => {
     try {
         const note = await Note.create({ email: req.user.email, title: req.body.title, desc: req.body.desc });

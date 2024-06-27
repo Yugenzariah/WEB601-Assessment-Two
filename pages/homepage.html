@@ -30,6 +30,7 @@
         <div class="d-flex" role="search">
           <a href="/login"><button class="btn btn-primary mx-2" type="submit">Login</button></a>
           <a href="/signup"><button class="btn btn-primary mx-2" type="submit">Signup</button></a>
+          <button class="btn btn-danger mx-2" id="logout">Logout</button>
         </div>
       </div>
     </div>
@@ -115,7 +116,7 @@
               noteContainer.innerHTML += note;
             });
 
-            // Add event listeners for delete links
+            // Event listeners for delete links
             const deleteLinks = document.querySelectorAll('.delete-note');
             deleteLinks.forEach(link => {
               link.addEventListener('click', async (event) => {
@@ -166,7 +167,7 @@
       // Fetch notes on page load
       document.addEventListener('DOMContentLoaded', fetchNotes);
 
-      // Add event listener for adding a new note
+      // Event listener for adding a new note
       const submitButton = document.getElementById("submit");
       submitButton.addEventListener("click", async () => {
         const name = document.getElementById("name").value;
@@ -203,6 +204,40 @@
           alert('Failed to add note. Please try again later.');
         }
       });
+
+      // Logout function
+      const logout = async () => {
+        const token = localStorage.getItem('token');
+        try {
+          const response = await fetch('/logout', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            }
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to logout');
+          }
+
+          const data = await response.json();
+          if (data.success) {
+            alert('Logged out successfully');
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/login'; // Redirect to login page after logging out
+          } else {
+            throw new Error(data.message || 'Failed to logout');
+          }
+        } catch (error) {
+          console.error('Error logging out:', error.message);
+          alert('Failed to logout. Please try again later.');
+        }
+      };
+
+      // Event listener for logout button
+      document.getElementById('logout').addEventListener('click', logout);
     </script>
 </body>
 

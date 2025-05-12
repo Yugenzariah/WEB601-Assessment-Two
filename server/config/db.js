@@ -1,3 +1,4 @@
+// MongoDB connection logic. Connects to the database using the MONGO_URI from environment variables.
 const mongoose = require('mongoose');
 
 const connectDB = async () => {
@@ -8,7 +9,7 @@ const connectDB = async () => {
         });
     } catch (err) {
         console.error(err.message);
-        process.exit(1);
+        process.exit(1); // Exit process with failure
     }
 };
 

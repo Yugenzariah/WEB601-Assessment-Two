@@ -1,8 +1,9 @@
+// Note model schema. Stores user notes including title, content, optional tags, and archive status.
 const NoteSchema = new mongoose.Schema({
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // Link to User
     title: { type: String, required: true },
     content: { type: String, required: true },
-    tags: [
+    tags: [ // Array of tag objects containing name and colour
         {
             name: String,
             color: String // Use #fffff etc.

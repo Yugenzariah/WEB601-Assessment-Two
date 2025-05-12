@@ -1,13 +1,15 @@
+// Main backend server setup. Configures middleware. connects to the Database, and mounts routes.
 const express = require('express');
 const connectDB = require('./config/db');
 const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
-connectDB();
-app.use(cors());
-app.use(express.json());
+connectDB(); // Connect to MongoDB
+app.use(cors()); // Enable CORS for frontend communication
+app.use(express.json()); // Parse incoming JSON requests
 
+// Mount API routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/notes', require('./routes/notes'));
 

@@ -1,3 +1,5 @@
+const mongoose = require('mongoose');
+
 // Note model schema. Stores user notes including title, content, optional tags, and archive status.
 const NoteSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // Link to User

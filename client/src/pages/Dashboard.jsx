@@ -1,64 +1,71 @@
-// Main dashboard page. Displays ProgressBar, NoteForm, and list of NoteCards.
+// Main Dashboard layout 
 import React, { useState } from 'react';
-import NoteForm from '../components/NoteForm';
+import Sidebar from '../components/Sidebar';
 import NoteCard from '../components/NoteCard';
-import ProgressBar from '../components/ProgressBar';
 
 const Dashboard = () => {
-  const [notes, setNotes] = useState([]); // TODO: Change dummy state
-  const [noteToEdit, setNoteToEdit] = useState(null);
+  const [notes] = useState([ // dummy notes for layout
+    { id: 1, title: 'Develop Note Taking App', content: 'Task list and plans', tags: [{ name: 'Dev Projects', color: '#007bff' }] },
+    { id: 2, title: '30 Day Exercise Goal', content: 'Workout schedule', tags: [{ name: 'Fitness', color: '#28a745' }] }
+  ]);
 
-  // Add or update note
-  const handleSaveNote = (noteData) => {
-    if (noteToEdit) {
-      // Update existing note
-      setNotes(
-        notes.map((note) =>
-          note.id === noteToEdit.id ? { ...note, ...noteData } : note
-        )
-      );
-      setNoteToEdit(null);
-    } else {
-      // Add new note
-      const newNote = {
-        id: Date.now(), // Temporary local ID
-        title: noteData.title,
-        content: noteData.content,
-        tags: [] // No tags yet
-      };
-      setNotes([newNote, ...notes]);
-    }
-  };
-
-  // Delete note
-  const handleDeleteNote = (id) => {
-    setNotes(notes.filter((note) => note.id !== id));
-  };
-
-  // Edit note
-  const handleEditNote = (note) => {
-    setNoteToEdit(note);
-  };
+  const [activeNote] = useState(notes[0]); // dummy active note
 
   return (
-    <div className="container mt-4">
-      <h1 className="mb-4">My Notes</h1>
+    <div className="container-fluid">
+      <div className="row vh-100">
+        {/* Left Sidebar (Tags) */}
+        <div className="col-2 border-end">
+          <Sidebar tags={["Personal", "Fitness", "Cooking", "Projects", "Dev Projects"]} />
+        </div>
 
-      {/* ProgressBar showing dummy completed vs total */}
-      <ProgressBar completed={0} total={notes.length} />
+        {/* Middle Notes List */}
+        <div className="col-4 border-end d-flex flex-column">
+          <div className="p-3 border-bottom">
+            <h5>All Notes</h5>
+            <button className="btn btn-primary w-100 mt-2">+ Create New Note</button>
+          </div>
+          <div className="flex-grow-1 overflow-auto p-3">
+            {notes.map(note => (
+              <NoteCard key={note.id} note={note} onEdit={() => {}} onDelete={() => {}} />
+            ))}
+          </div>
+        </div>
 
-      {/* Note form to add/edit notes */}
-      <NoteForm onSave={handleSaveNote} noteToEdit={noteToEdit} />
+        {/* Right Active Note View */}
+        <div className="col-6 d-flex flex-column">
+          <div className="p-4 border-bottom d-flex justify-content-between align-items-start">
+            <div>
+              <h4>{activeNote.title}</h4>
+              <p><small>Last edited: May 4, 2025</small></p>
+              <div>
+                {activeNote.tags.map((tag, index) => (
+                  <span
+                    key={index}
+                    className="badge me-1"
+                    style={{ backgroundColor: tag.color, color: '#fff' }}
+                  >
+                    {tag.name}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div className="ms-3">
+              <button className="btn btn-outline-secondary mb-2 w-100">Archive Note</button>
+              <button className="btn btn-outline-danger w-100">Delete Note</button>
+            </div>
+          </div>
 
-      {/* Render list of NoteCards */}
-      {notes.map((note) => (
-        <NoteCard
-          key={note.id}
-          note={note}
-          onEdit={handleEditNote}
-          onDelete={handleDeleteNote}
-        />
-      ))}
+          <div className="flex-grow-1 p-4 overflow-auto">
+            <p>{activeNote.content}</p>
+          </div>
+
+          <div className="p-3 border-top">
+            <button className="btn btn-primary w-100 mb-2">Save Note</button>
+            <button className="btn btn-secondary w-100">Cancel</button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

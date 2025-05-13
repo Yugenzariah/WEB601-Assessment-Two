@@ -1,42 +1,43 @@
-// Displays a form to create or edit a note.
-import React, { useState } from 'react';
+import React from 'react';
 
-const NoteForm = ({ onSave, noteToEdit }) => {
-  // Initialize form fields with noteToEdit data if available
-  const [title, setTitle] = useState(noteToEdit ? noteToEdit.title : '');
-  const [content, setContent] = useState(noteToEdit ? noteToEdit.content : '');
+const NoteForm = ({ onSave, noteToEdit, setActiveNote, setNotes, notes }) => {
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    const updatedNote = { ...noteToEdit, [name]: value };
+    setActiveNote(updatedNote);
+    setNotes(notes.map(n => n === noteToEdit ? updatedNote : n));
+  };
 
-  // Handle form submit
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave({ title, content });
-    setTitle('');
-    setContent('');
+    onSave({ title: noteToEdit.title, content: noteToEdit.content });
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mb-4">
+    <form onSubmit={handleSubmit}>
       <div className="mb-3">
         <input
           type="text"
+          name="title"
           className="form-control"
           placeholder="Note Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          value={noteToEdit.title}
+          onChange={handleChange}
           required
         />
       </div>
       <div className="mb-3">
         <textarea
+          name="content"
           className="form-control"
           placeholder="Note Content"
-          rows="4"
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
+          rows="6"
+          value={noteToEdit.content}
+          onChange={handleChange}
           required
         ></textarea>
       </div>
-      <button type="submit" className="btn btn-primary">Save Note</button>
+      <button type="submit" className="btn btn-primary w-100">Save Note</button>
     </form>
   );
 };

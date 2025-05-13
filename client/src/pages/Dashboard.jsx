@@ -76,6 +76,8 @@ const Dashboard = () => {
               <NoteCard
                 key={note._id || note.tempId}
                 note={note}
+                activeNote={activeNote}
+                onSelect={() => setActiveNote(note)}
                 onEdit={() => setActiveNote(note)}
                 onDelete={() => note._id ? handleDeleteNote(note._id) : setNotes(notes.filter(n => n !== note))}
               />

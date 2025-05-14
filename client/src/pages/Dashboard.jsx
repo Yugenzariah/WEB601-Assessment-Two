@@ -9,6 +9,7 @@ const Dashboard = () => {
   const [activeNote, setActiveNote] = useState(null);
   const token = localStorage.getItem('token');
 
+  // Fetch notes on load
   useEffect(() => {
     if (token) {
       getNotes(token)
@@ -17,16 +18,23 @@ const Dashboard = () => {
     }
   }, [token]);
 
+  // Auto-select first note if none is active
   useEffect(() => {
     if (notes.length > 0 && !activeNote) {
       setActiveNote(notes[0]);
     }
   }, [notes, activeNote]);
 
+  // ✅ FIXED: Create New Note calls backend immediately
   const handleCreateNewNote = () => {
-    const newNote = { title: '', content: '', tags: [], tempId: Date.now() };
-    setNotes([newNote, ...notes]);
-    setActiveNote(newNote);
+    if (!token) return;
+
+    createNote({ title: '', content: '', tags: [] }, token)
+      .then(res => {
+        setNotes([res.data, ...notes]);
+        setActiveNote(res.data);
+      })
+      .catch(err => console.error(err));
   };
 
   const handleSaveNote = (noteData) => {
@@ -62,10 +70,12 @@ const Dashboard = () => {
   return (
     <div className="container-fluid">
       <div className="row vh-100">
+        {/* Left Sidebar */}
         <div className="col-2 border-end">
           <Sidebar tags={["Personal", "Fitness", "Cooking", "Projects", "Dev Projects"]} />
         </div>
 
+        {/* Middle Notes List */}
         <div className="col-4 border-end d-flex flex-column">
           <div className="p-3 border-bottom">
             <h5>All Notes</h5>
@@ -74,7 +84,7 @@ const Dashboard = () => {
           <div className="flex-grow-1 overflow-auto p-3">
             {notes.map(note => (
               <NoteCard
-                key={note._id || note.tempId}
+                key={note._id}
                 note={note}
                 activeNote={activeNote}
                 onSelect={() => setActiveNote(note)}
@@ -85,6 +95,7 @@ const Dashboard = () => {
           </div>
         </div>
 
+        {/* Right Note Editor */}
         <div className="col-6 d-flex flex-column">
           <div className="p-4 border-bottom">
             {activeNote ? (

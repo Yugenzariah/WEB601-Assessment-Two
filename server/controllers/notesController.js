@@ -69,3 +69,20 @@ exports.deleteNote = async (req, res) => {
     res.status(500).send('Server Error');
   }
 };
+
+// Archive a note
+exports.archiveNote = async (req, res) => {
+  try {
+    const note = await Note.findById(req.params.id);
+    if (!note) return res.status(404).json({ msg: 'Note not found' });
+    if (note.userId.toString() !== req.user.id)
+      return res.status(401).json({ msg: 'Not authorized' });
+
+    note.isArchived = true;
+    await note.save();
+    res.json({ msg: 'Note archived successfully' });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+};

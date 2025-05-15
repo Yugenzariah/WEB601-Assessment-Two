@@ -21,5 +21,6 @@ export const getNotes = (token) => api.get('/notes', { headers: { Authorization:
 export const createNote = (noteData, token) => api.post('/notes', noteData, { headers: { Authorization: token } });
 export const updateNote = (noteId, noteData, token) => api.put(`/notes/${noteId}`, noteData, { headers: { Authorization: token } });
 export const deleteNote = (noteId, token) => api.delete(`/notes/${noteId}`, { headers: { Authorization: token } });
+export const archiveNote = (noteId, token) => api.patch(`/notes/${noteId}/archive`, null, { headers: { Authorization: token } });
 
 export default api;

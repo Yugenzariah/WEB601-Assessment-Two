@@ -9,7 +9,6 @@ const Dashboard = () => {
   const [activeNote, setActiveNote] = useState(null);
   const token = localStorage.getItem('token');
 
-  // Fetch notes on load
   useEffect(() => {
     if (token) {
       getNotes(token)
@@ -18,17 +17,14 @@ const Dashboard = () => {
     }
   }, [token]);
 
-  // Auto-select first note if none is active
   useEffect(() => {
     if (notes.length > 0 && !activeNote) {
       setActiveNote(notes[0]);
     }
   }, [notes, activeNote]);
 
-  // ✅ FIXED: Create New Note calls backend immediately
   const handleCreateNewNote = () => {
     if (!token) return;
-
     createNote({ title: '', content: '', tags: [] }, token)
       .then(res => {
         setNotes([res.data, ...notes]);
@@ -39,7 +35,6 @@ const Dashboard = () => {
 
   const handleSaveNote = (noteData) => {
     if (!token || !activeNote) return;
-
     if (activeNote._id) {
       updateNote(activeNote._id, noteData, token)
         .then(() => {
@@ -70,33 +65,38 @@ const Dashboard = () => {
   return (
     <div className="container-fluid">
       <div className="row vh-100">
+
         {/* Left Sidebar */}
-        <div className="col-2 border-end">
+        <div className="col-md-2 bg-light border-end px-0">
           <Sidebar tags={["Personal", "Fitness", "Cooking", "Projects", "Dev Projects"]} />
         </div>
 
         {/* Middle Notes List */}
-        <div className="col-4 border-end d-flex flex-column">
+        <div className="col-md-3 border-end d-flex flex-column">
           <div className="p-3 border-bottom">
-            <h5>All Notes</h5>
+            <h5 className="fw-bold">All Notes</h5>
             <button className="btn btn-primary w-100 mt-2" onClick={handleCreateNewNote}>+ Create New Note</button>
           </div>
-          <div className="flex-grow-1 overflow-auto p-3">
-            {notes.map(note => (
-              <NoteCard
-                key={note._id}
-                note={note}
-                activeNote={activeNote}
-                onSelect={() => setActiveNote(note)}
-                onEdit={() => setActiveNote(note)}
-                onDelete={() => note._id ? handleDeleteNote(note._id) : setNotes(notes.filter(n => n !== note))}
-              />
-            ))}
+          <div className="flex-grow-1 overflow-auto p-2">
+            {notes.length === 0 ? (
+              <p className="text-center text-muted mt-4">You have no notes yet.</p>
+            ) : (
+              notes.map(note => (
+                <NoteCard
+                  key={note._id}
+                  note={note}
+                  activeNote={activeNote}
+                  onSelect={() => setActiveNote(note)}
+                  onEdit={() => setActiveNote(note)}
+                  onDelete={() => note._id ? handleDeleteNote(note._id) : setNotes(notes.filter(n => n !== note))}
+                />
+              ))
+            )}
           </div>
         </div>
 
         {/* Right Note Editor */}
-        <div className="col-6 d-flex flex-column">
+        <div className="col-md-7 d-flex flex-column">
           <div className="p-4 border-bottom">
             {activeNote ? (
               <NoteForm
@@ -111,6 +111,7 @@ const Dashboard = () => {
             )}
           </div>
         </div>
+
       </div>
     </div>
   );

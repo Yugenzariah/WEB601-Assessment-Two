@@ -1,4 +1,3 @@
-// Sidebar component displays user info, filter buttons, and tag list.
 import React from 'react';
 import { FaUserCircle, FaStickyNote, FaArchive, FaTag } from 'react-icons/fa';
 
@@ -9,6 +8,17 @@ const Sidebar = ({ tags }) => {
       <div className="text-center mb-4">
         <FaUserCircle size={60} className="text-secondary" />
         <h6 className="mt-2 fw-bold">Username</h6>
+
+        {/* Logout button under Username */}
+        <button
+          className="btn btn-sm btn-outline-secondary mt-2"
+          onClick={() => {
+            localStorage.removeItem('token');
+            window.location.href = '/login';
+          }}
+        >
+          Logout
+        </button>
       </div>
 
       {/* Navigation */}

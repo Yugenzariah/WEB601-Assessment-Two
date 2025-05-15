@@ -6,7 +6,10 @@ import { getNotes, createNote, updateNote, deleteNote } from '../services/api';
 
 const Dashboard = () => {
   const [notes, setNotes] = useState([]);
+  const [userSelected, setUserSelected] = useState(false);
   const [activeNote, setActiveNote] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
   const token = localStorage.getItem('token');
 
   useEffect(() => {
@@ -18,35 +21,56 @@ const Dashboard = () => {
   }, [token]);
 
   useEffect(() => {
-    if (notes.length > 0 && !activeNote) {
+    if (notes.length > 0 && !activeNote && !userSelected) {
       setActiveNote(notes[0]);
+      setIsEditing(false);
     }
-  }, [notes, activeNote]);
+  }, [notes, activeNote, userSelected]);
+
+  // Click anywhere outside to deselect
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (!e.target.closest('.col-md-3') && !e.target.closest('.col-md-7')) {
+        setActiveNote(null);
+        setIsEditing(false);
+        setUserSelected(false);
+      }
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
 
   const handleCreateNewNote = () => {
     if (!token) return;
     createNote({ title: '', content: '', tags: [] }, token)
       .then(res => {
-        setNotes([res.data, ...notes]);
-        setActiveNote(res.data);
+        const newNote = res.data;
+        setNotes([newNote, ...notes]);
+        setActiveNote(newNote);
+        setIsEditing(true);
+        setUserSelected(true);
       })
       .catch(err => console.error(err));
   };
 
   const handleSaveNote = (noteData) => {
     if (!token || !activeNote) return;
+
     if (activeNote._id) {
       updateNote(activeNote._id, noteData, token)
         .then(() => {
-          setNotes(notes.map(n => n._id === activeNote._id ? { ...n, ...noteData } : n));
+          const updatedNote = { ...activeNote, ...noteData };
+          setNotes(notes.map(n => n._id === activeNote._id ? updatedNote : n));
+          setActiveNote(null);
+          setIsEditing(false);
         })
         .catch(err => console.error(err));
     } else {
       createNote(noteData, token)
         .then(res => {
-          const updatedNotes = notes.map(n => n === activeNote ? res.data : n);
-          setNotes(updatedNotes);
-          setActiveNote(res.data);
+          setNotes([res.data, ...notes]);
+          setActiveNote(null);
+          setIsEditing(false);
         })
         .catch(err => console.error(err));
     }
@@ -58,14 +82,19 @@ const Dashboard = () => {
       .then(() => {
         setNotes(notes.filter(n => n._id !== id));
         setActiveNote(null);
+        setIsEditing(false);
       })
       .catch(err => console.error(err));
   };
 
+  const filteredNotes = notes.filter(note =>
+    note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    note.tags.some(tag => tag.name.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
   return (
     <div className="container-fluid">
       <div className="row vh-100">
-
         {/* Left Sidebar */}
         <div className="col-md-2 bg-light border-end px-0">
           <Sidebar tags={["Personal", "Fitness", "Cooking", "Projects", "Dev Projects"]} />
@@ -74,20 +103,41 @@ const Dashboard = () => {
         {/* Middle Notes List */}
         <div className="col-md-3 border-end d-flex flex-column">
           <div className="p-3 border-bottom">
+            <input
+              type="text"
+              className="form-control form-control-sm mb-2"
+              placeholder="Search notes by title or tag..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
             <h5 className="fw-bold">All Notes</h5>
             <button className="btn btn-primary w-100 mt-2" onClick={handleCreateNewNote}>+ Create New Note</button>
           </div>
           <div className="flex-grow-1 overflow-auto p-2">
-            {notes.length === 0 ? (
-              <p className="text-center text-muted mt-4">You have no notes yet.</p>
+            {filteredNotes.length === 0 ? (
+              <p className="text-center text-muted mt-4">No matching notes found.</p>
             ) : (
-              notes.map(note => (
+              filteredNotes.map(note => (
                 <NoteCard
                   key={note._id}
                   note={note}
                   activeNote={activeNote}
-                  onSelect={() => setActiveNote(note)}
-                  onEdit={() => setActiveNote(note)}
+                  onSelect={() => {
+                    if (activeNote?._id === note._id) {
+                      setActiveNote(null);            // toggle deselect
+                      setIsEditing(false);
+                      setUserSelected(true);
+                    } else {
+                      setActiveNote(note);
+                      setIsEditing(false);
+                      setUserSelected(true);
+                    }
+                  }}
+                  onEdit={() => {
+                    setActiveNote(note);
+                    setIsEditing(true);
+                    setUserSelected(true);
+                  }}
                   onDelete={() => note._id ? handleDeleteNote(note._id) : setNotes(notes.filter(n => n !== note))}
                 />
               ))
@@ -99,19 +149,37 @@ const Dashboard = () => {
         <div className="col-md-7 d-flex flex-column">
           <div className="p-4 border-bottom">
             {activeNote ? (
-              <NoteForm
-                onSave={handleSaveNote}
-                noteToEdit={activeNote}
-                setActiveNote={setActiveNote}
-                setNotes={setNotes}
-                notes={notes}
-              />
+              <>
+                <div className="d-flex justify-content-end mb-3">
+                  <button
+                    className="btn btn-sm btn-outline-secondary me-2"
+                    onClick={() => alert('Archive functionality not yet implemented')}
+                  >
+                    Archive
+                  </button>
+                  <button
+                    className="btn btn-sm btn-outline-danger"
+                    onClick={() => activeNote._id && handleDeleteNote(activeNote._id)}
+                  >
+                    Delete
+                  </button>
+                </div>
+
+                <NoteForm
+                  onSave={handleSaveNote}
+                  noteToEdit={activeNote}
+                  setActiveNote={setActiveNote}
+                  setNotes={setNotes}
+                  notes={notes}
+                  isEditing={isEditing}
+                  setIsEditing={setIsEditing}
+                />
+              </>
             ) : (
               <p className="text-muted">Select or create a note to edit.</p>
             )}
           </div>
         </div>
-
       </div>
     </div>
   );

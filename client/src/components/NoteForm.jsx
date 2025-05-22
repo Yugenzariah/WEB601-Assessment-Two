@@ -10,9 +10,17 @@ const NoteForm = ({ onSave, noteToEdit, setActiveNote, setNotes, notes, isEditin
     setNotes(notes.map(n => n === noteToEdit ? updatedNote : n));
   };
 
+  const handleTagInput = (e) => {
+    const tagsArray = e.target.value.split(',').map(tag => tag.trim()).filter(tag => tag);
+    const updatedTags = tagsArray.map(name => ({ name, color: '#007bff' }));
+    const updatedNote = { ...noteToEdit, tags: updatedTags };
+    setActiveNote(updatedNote);
+    setNotes(notes.map(n => n === noteToEdit ? updatedNote : n));
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave({ title: noteToEdit.title, content: noteToEdit.content });
+    onSave({ title: noteToEdit.title, content: noteToEdit.content, tags: noteToEdit.tags });
   };
 
   return (
@@ -26,7 +34,7 @@ const NoteForm = ({ onSave, noteToEdit, setActiveNote, setNotes, notes, isEditin
           value={noteToEdit.title}
           onChange={handleChange}
           required
-          disabled={!isEditing}     // lock title when not editing
+          disabled={!isEditing}
         />
       </div>
 
@@ -39,11 +47,21 @@ const NoteForm = ({ onSave, noteToEdit, setActiveNote, setNotes, notes, isEditin
           value={noteToEdit.content}
           onChange={handleChange}
           required
-          disabled={!isEditing}     // lock content when not editing
+          disabled={!isEditing}
         ></textarea>
       </div>
 
-      {/* Show Save/Cancel only if editing */}
+      <div className="mb-3">
+        <input
+          type="text"
+          name="tags"
+          className="form-control form-control-sm"
+          placeholder="Tags (comma-separated)"
+          onChange={handleTagInput}
+          disabled={!isEditing}
+        />
+      </div>
+
       {isEditing && (
         <div className="d-flex justify-content-between">
           <button type="submit" className="btn btn-sm btn-primary">Save Note</button>

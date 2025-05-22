@@ -1,11 +1,17 @@
-import React from 'react';
 import { FaUserCircle, FaStickyNote, FaArchive, FaTag } from 'react-icons/fa';
 
-const Sidebar = ({ tags, showArchived, setShowArchived, setActiveNote, setIsEditing }) => {
+const Sidebar = ({ tags, showArchived, setShowArchived, setActiveNote, setIsEditing, activeTag, setActiveTag }) => {
   const handleToggle = (archived) => {
     setShowArchived(archived);
     setActiveNote(null);
-    setIsEditing(false);     
+    setIsEditing(false);
+    setActiveTag(null);
+  };
+
+  const handleTagClick = (tag) => {
+    setActiveTag(prev => prev === tag ? null : tag);
+    setActiveNote(null);
+    setIsEditing(false);
   };
 
   return (
@@ -50,7 +56,12 @@ const Sidebar = ({ tags, showArchived, setShowArchived, setActiveNote, setIsEdit
         <h6 className="fw-bold">Tags</h6>
         <ul className="list-unstyled">
           {tags.map((tag, index) => (
-            <li key={index} className="d-flex align-items-center mb-2">
+            <li
+              key={index}
+              className={`d-flex align-items-center mb-2 ${activeTag === tag ? 'fw-bold text-primary' : ''}`}
+              style={{ cursor: 'pointer' }}
+              onClick={() => handleTagClick(tag)}
+            >
               <FaTag className="me-2" />
               <span>{tag}</span>
             </li>

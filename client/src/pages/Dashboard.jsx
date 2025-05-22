@@ -16,6 +16,7 @@ const Dashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [showArchived, setShowArchived] = useState(false);
+  const [activeTag, setActiveTag] = useState(null);
   const token = localStorage.getItem("token");
 
   useEffect(() => {
@@ -86,13 +87,20 @@ const Dashboard = () => {
       .catch((err) => console.error(err));
   };
 
-  const filteredNotes = notes.filter(
-    (note) =>
-      note.isArchived === showArchived &&
-      (note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        note.tags.some((tag) =>
-          tag.name.toLowerCase().includes(searchQuery.toLowerCase())
-        ))
+  const filteredNotes = notes.filter((note) => {
+    const matchesSearch =
+      note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      note.tags.some((tag) =>
+        tag.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+
+    const matchesTag = !activeTag || note.tags.some((tag) => tag.name === activeTag);
+
+    return note.isArchived === showArchived && matchesSearch && matchesTag;
+  });
+
+  const allTags = Array.from(
+    new Set(notes.flatMap((note) => note.tags.map((tag) => tag.name)))
   );
 
   return (
@@ -100,11 +108,13 @@ const Dashboard = () => {
       <div className="row vh-100">
         <div className="col-md-2 bg-light border-end px-0">
           <Sidebar
-            tags={["Personal", "Fitness", "Cooking", "Projects", "Dev Projects"]}
+            tags={allTags}
             showArchived={showArchived}
             setShowArchived={setShowArchived}
             setActiveNote={setActiveNote}
             setIsEditing={setIsEditing}
+            activeTag={activeTag}
+            setActiveTag={setActiveTag}
           />
         </div>
 

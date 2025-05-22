@@ -12,10 +12,10 @@ import {
 
 const Dashboard = () => {
   const [notes, setNotes] = useState([]);
-  const [userSelected, setUserSelected] = useState(false);
   const [activeNote, setActiveNote] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isEditing, setIsEditing] = useState(false);
+  const [showArchived, setShowArchived] = useState(false);
   const token = localStorage.getItem("token");
 
   useEffect(() => {
@@ -26,35 +26,13 @@ const Dashboard = () => {
     }
   }, [token]);
 
-  useEffect(() => {
-    if (notes.length > 0 && !activeNote && !userSelected) {
-      setActiveNote(notes[0]);
-      setIsEditing(false);
-    }
-  }, [notes, activeNote, userSelected]);
-
-  // Click anywhere outside to deselect
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (!e.target.closest(".col-md-3") && !e.target.closest(".col-md-7")) {
-        setActiveNote(null);
-        setIsEditing(false);
-        setUserSelected(false);
-      }
-    };
-    document.addEventListener("click", handleClickOutside);
-    return () => document.removeEventListener("click", handleClickOutside);
-  }, []);
-
   const handleCreateNewNote = () => {
     if (!token) return;
     createNote({ title: "", content: "", tags: [] }, token)
       .then((res) => {
-        const newNote = res.data;
-        setNotes([newNote, ...notes]);
-        setActiveNote(newNote);
+        setNotes([res.data, ...notes]);
+        setActiveNote(res.data);
         setIsEditing(true);
-        setUserSelected(true);
       })
       .catch((err) => console.error(err));
   };
@@ -75,8 +53,9 @@ const Dashboard = () => {
         .catch((err) => console.error(err));
     } else {
       createNote(noteData, token)
+        .then(() => getNotes(token))
         .then((res) => {
-          setNotes([res.data, ...notes]);
+          setNotes(res.data);
           setActiveNote(null);
           setIsEditing(false);
         })
@@ -95,33 +74,40 @@ const Dashboard = () => {
       .catch((err) => console.error(err));
   };
 
-  const filteredNotes = notes
-    .filter((note) => !note.isArchived)
-    .filter(
-      (note) =>
-        note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  const handleArchiveNote = (id) => {
+    if (!token) return;
+    archiveNote(id, token)
+      .then(() => getNotes(token))
+      .then((res) => {
+        setNotes(res.data);
+        setActiveNote(null);
+        setIsEditing(false);
+      })
+      .catch((err) => console.error(err));
+  };
+
+  const filteredNotes = notes.filter(
+    (note) =>
+      note.isArchived === showArchived &&
+      (note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         note.tags.some((tag) =>
           tag.name.toLowerCase().includes(searchQuery.toLowerCase())
-        )
-    );
+        ))
+  );
 
   return (
     <div className="container-fluid">
       <div className="row vh-100">
-        {/* Left Sidebar */}
         <div className="col-md-2 bg-light border-end px-0">
           <Sidebar
-            tags={[
-              "Personal",
-              "Fitness",
-              "Cooking",
-              "Projects",
-              "Dev Projects",
-            ]}
+            tags={["Personal", "Fitness", "Cooking", "Projects", "Dev Projects"]}
+            showArchived={showArchived}
+            setShowArchived={setShowArchived}
+            setActiveNote={setActiveNote}
+            setIsEditing={setIsEditing}
           />
         </div>
 
-        {/* Middle Notes List */}
         <div className="col-md-3 border-end d-flex flex-column">
           <div className="p-3 border-bottom">
             <input
@@ -131,18 +117,24 @@ const Dashboard = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
-            <h5 className="fw-bold">All Notes</h5>
-            <button
-              className="btn btn-primary w-100 mt-2"
-              onClick={handleCreateNewNote}
-            >
-              + Create New Note
-            </button>
+            <h5 className="fw-bold">
+              {showArchived ? "Archived Notes" : "All Notes"}
+            </h5>
+            {!showArchived && (
+              <button
+                className="btn btn-primary w-100 mt-2"
+                onClick={handleCreateNewNote}
+              >
+                + Create New Note
+              </button>
+            )}
           </div>
           <div className="flex-grow-1 overflow-auto p-2">
             {filteredNotes.length === 0 ? (
               <p className="text-center text-muted mt-4">
-                No matching notes found.
+                {showArchived
+                  ? "No archived notes yet."
+                  : "No matching notes found."}
               </p>
             ) : (
               filteredNotes.map((note) => (
@@ -151,61 +143,35 @@ const Dashboard = () => {
                   note={note}
                   activeNote={activeNote}
                   onSelect={() => {
-                    if (activeNote?._id === note._id) {
-                      setActiveNote(null); // toggle deselect
-                      setIsEditing(false);
-                      setUserSelected(true);
-                    } else {
-                      setActiveNote(note);
-                      setIsEditing(false);
-                      setUserSelected(true);
-                    }
+                    setActiveNote(note);
+                    setIsEditing(false);
                   }}
                   onEdit={() => {
                     setActiveNote(note);
                     setIsEditing(true);
-                    setUserSelected(true);
                   }}
-                  onDelete={() =>
-                    note._id
-                      ? handleDeleteNote(note._id)
-                      : setNotes(notes.filter((n) => n !== note))
-                  }
+                  onDelete={() => note._id && handleDeleteNote(note._id)}
                 />
               ))
             )}
           </div>
         </div>
 
-        {/* Right Note Editor */}
         <div className="col-md-7 d-flex flex-column">
           <div className="p-4 border-bottom">
             {activeNote ? (
               <>
                 <div className="d-flex justify-content-end mb-3">
-                  <button
-                    className="btn btn-sm btn-outline-secondary me-2"
-                    onClick={() =>
-                      activeNote._id &&
-                      archiveNote(activeNote._id, token)
-                        .then(() =>
-                          setNotes(
-                            notes.map((n) =>
-                              n._id === activeNote._id
-                                ? { ...n, isArchived: true }
-                                : n
-                            )
-                          )
-                        )
-                        .then(() => {
-                          setActiveNote(null);
-                          setIsEditing(false);
-                        })
-                        .catch((err) => console.error(err))
-                    }
-                  >
-                    Archive
-                  </button>
+                  {!showArchived && (
+                    <button
+                      className="btn btn-sm btn-outline-secondary me-2"
+                      onClick={() =>
+                        activeNote._id && handleArchiveNote(activeNote._id)
+                      }
+                    >
+                      Archive
+                    </button>
+                  )}
                   <button
                     className="btn btn-sm btn-outline-danger"
                     onClick={() =>

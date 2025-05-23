@@ -127,9 +127,19 @@ const Dashboard = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
-            <h5 className="fw-bold">
-              {showArchived ? "Archived Notes" : "All Notes"}
-            </h5>
+            <div className="d-flex justify-content-between align-items-center mb-2">
+              <h5 className="fw-bold mb-0">
+                {showArchived ? "Archived Notes" : "All Notes"}
+              </h5>
+              {activeTag && (
+                <button
+                  className="btn btn-sm btn-outline-secondary"
+                  onClick={() => setActiveTag(null)}
+                >
+                  Clear Filter
+                </button>
+              )}
+            </div>
             {!showArchived && (
               <button
                 className="btn btn-primary w-100 mt-2"

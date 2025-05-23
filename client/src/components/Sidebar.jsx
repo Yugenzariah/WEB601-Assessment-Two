@@ -1,6 +1,19 @@
+import React, { useState, useEffect } from 'react';
 import { FaUserCircle, FaStickyNote, FaArchive, FaTag } from 'react-icons/fa';
+import { getUser } from '../services/api';
 
 const Sidebar = ({ tags, showArchived, setShowArchived, setActiveNote, setIsEditing, activeTag, setActiveTag }) => {
+  const [username, setUsername] = useState('User');
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      getUser(token)
+        .then(res => setUsername(res.data.fullName || 'User'))
+        .catch(err => console.error('Failed to fetch user info', err));
+    }
+  }, []);
+
   const handleToggle = (archived) => {
     setShowArchived(archived);
     setActiveNote(null);
@@ -16,10 +29,10 @@ const Sidebar = ({ tags, showArchived, setShowArchived, setActiveNote, setIsEdit
 
   return (
     <div className="d-flex flex-column h-100 p-3">
-      {/* Top user info */}
+      {/* ✅ Top user info */}
       <div className="text-center mb-4">
         <FaUserCircle size={60} className="text-secondary" />
-        <h6 className="mt-2 fw-bold">Username</h6>
+        <h6 className="mt-2 fw-bold">{username}</h6>
         <button
           className="btn btn-sm btn-outline-secondary mt-2"
           onClick={() => {

@@ -9,6 +9,7 @@ import {
   deleteNote,
   archiveNote,
 } from "../services/api";
+import { toast } from "react-toastify";
 
 const Dashboard = () => {
   const [notes, setNotes] = useState([]);
@@ -23,7 +24,10 @@ const Dashboard = () => {
     if (token) {
       getNotes(token)
         .then((res) => setNotes(res.data))
-        .catch((err) => console.error(err));
+        .catch((err) => {
+          console.error(err);
+          toast.error("Failed to load notes");
+        });
     }
   }, [token]);
 
@@ -34,8 +38,12 @@ const Dashboard = () => {
         setNotes([res.data, ...notes]);
         setActiveNote(res.data);
         setIsEditing(true);
+        toast.success("Note created");
       })
-      .catch((err) => console.error(err));
+      .catch((err) => {
+        console.error(err);
+        toast.error("Failed to create note");
+      });
   };
 
   const handleSaveNote = (noteData) => {
@@ -50,8 +58,12 @@ const Dashboard = () => {
           );
           setActiveNote(null);
           setIsEditing(false);
+          toast.success("Note saved");
         })
-        .catch((err) => console.error(err));
+        .catch((err) => {
+          console.error(err);
+          toast.error("Failed to save note");
+        });
     } else {
       createNote(noteData, token)
         .then(() => getNotes(token))
@@ -59,8 +71,12 @@ const Dashboard = () => {
           setNotes(res.data);
           setActiveNote(null);
           setIsEditing(false);
+          toast.success("Note saved");
         })
-        .catch((err) => console.error(err));
+        .catch((err) => {
+          console.error(err);
+          toast.error("Failed to save note");
+        });
     }
   };
 
@@ -71,8 +87,12 @@ const Dashboard = () => {
         setNotes(notes.filter((n) => n._id !== id));
         setActiveNote(null);
         setIsEditing(false);
+        toast.info("Note deleted");
       })
-      .catch((err) => console.error(err));
+      .catch((err) => {
+        console.error(err);
+        toast.error("Failed to delete note");
+      });
   };
 
   const handleArchiveNote = (id) => {
@@ -83,8 +103,12 @@ const Dashboard = () => {
         setNotes(res.data);
         setActiveNote(null);
         setIsEditing(false);
+        toast.info("Note archived");
       })
-      .catch((err) => console.error(err));
+      .catch((err) => {
+        console.error(err);
+        toast.error("Failed to archive note");
+      });
   };
 
   const filteredNotes = notes.filter((note) => {

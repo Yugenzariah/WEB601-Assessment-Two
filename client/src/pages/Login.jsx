@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { loginUser } from '../services/api';
+import { toast } from 'react-toastify';
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
-  const [message, setMessage] = useState('');
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -15,10 +15,11 @@ const Login = () => {
     try {
       const res = await loginUser(formData);
       localStorage.setItem('token', res.data.token);
+      toast.success('Login successful!');
       window.location.href = '/dashboard';
     } catch (err) {
       console.error(err);
-      setMessage(err.response?.data?.msg || 'Login failed');
+      toast.error(err.response?.data?.msg || 'Login failed');
     }
   };
 
@@ -36,11 +37,10 @@ const Login = () => {
             <input type="password" name="password" className="form-control" onChange={handleChange} required />
           </div>
           <button type="submit" className="btn btn-secondary w-100">Sign In</button>
-          {message && <p className="text-center mt-3 text-danger small">{message}</p>}
         </form>
         <p className="text-danger mt-2 small text-end">Forgot your password?</p>
         <p className="text-center mt-3 small">
-          Don’t have an account yet? <Link to="/register" className="text-danger">Register here!!!</Link>
+          Dont have an account yet? <Link to="/register" className="text-danger">Register here!!!</Link>
         </p>
       </div>
     </div>

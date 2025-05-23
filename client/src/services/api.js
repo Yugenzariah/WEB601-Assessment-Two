@@ -1,7 +1,7 @@
 // Handles API calls to backend for authentication and note management.
 import axios from 'axios';
 
-// Set your backend URL
+// Sets backend URL
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 const api = axios.create({
